@@ -1,0 +1,442 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZakovatBank — Intellektual Savollar Bazasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        classicDark: '#0B192C',
+                        classicBrown: '#443627',
+                        classicLight: '#F9F9FB',
+                        classicBlack: '#111111'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F9F9FB; color: #111111; font-family: 'Georgia', serif; }
+        .sans-font { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <nav class="bg-classicDark text-white shadow-md border-b-4 border-classicBrown">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-center sm:text-left">
+                <h1 class="text-3xl font-bold tracking-wider text-white">ZakovatBank</h1>
+                <p class="text-xs text-gray-400 sans-font">Sardor Mansurov loyihasi</p>
+            </div>
+            <div class="flex gap-6 sans-font font-medium">
+                <button onclick="switchPage('home')" class="hover:text-amber-400 transition nav-btn" id="btn-home">Bosh Sahifa</button>
+                <button onclick="switchPage('bank')" class="hover:text-amber-400 transition nav-btn" id="btn-bank">Savollar Banki</button>
+                <button onclick="switchPage('contact')" class="hover:text-amber-400 transition nav-btn" id="btn-contact">Aloqa</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6">
+
+        <section id="page-home" class="page-section hidden">
+            <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-200 mb-6">
+                <h2 class="text-3xl font-bold text-classicDark mb-4 text-center">Zakovat Haqida Muhim Ma'lumotlar</h2>
+                <div class="w-24 h-1 bg-classicBrown mx-auto mb-6"></div>
+                <div class="prose max-w-none text-gray-800 space-y-4 leading-relaxed text-lg">
+                    <p><strong>Zakovat</strong> — intellektual va mantiqiy fikrlashni rivojlantiruvchi ommabop o'yin bo'lib, u yoshlarni keng dunyoqarashga va tezkor qaror qabul qilishga o'rgatadi. Haqiqiy Zakovat savollari shunchaki quruq fakt yoki xotirani tekshirmaydi, balki chuqur mantiqiy zanjir va tahlil talab qiladi.</p>
+                    <p>Biz internet tarmog'idagi mavjud Zakovat savollarining sifatsizligi, soddaligi va ibtidoiyligi (primitivligi) muammosini ko'rib chiqdik. Shuning uchun o'quvchilar va bo'lajak chempionlar sifatli, tahliliy va ishonchli manbalardan foydalangan holda musobaqalarga mukammal tayyorlanishlari uchun <strong>ZakovatBank</strong> platformasini yaratdik.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-classicDark text-white p-6 rounded-lg border-l-4 border-classicBrown">
+                    <h3 class="text-xl font-bold mb-2">Maktabimiz Faxri</h3>
+                    <p class="text-gray-300 text-sm">Ushbu platformada e'lon qilinayotgan barcha savollar to'plami bizning maktab jamoasi va shaxsan shahar darajasidagi g'oliblik asosida to'plangan tajribamiz mevasi hisoblanadi.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-gray-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-classicDark mb-2">Tayyorgarlikni boshlang</h3>
+                        <p class="text-gray-600 text-sm">Savollar bankiga o'ting, o'zingiz xohlagan rukn yoki to'plamni tanlang va bilimingizni sinab ko'rishni boshlang.</p>
+                    </div>
+                    <button onclick="switchPage('bank')" class="mt-4 bg-classicBrown text-white px-4 py-2 rounded hover:bg-opacity-90 transition sans-font font-medium self-start">Savollar bankiga o'tish →</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-bank" class="page-section hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sans-font">
+                <div>
+                    <h2 class="text-2xl font-bold text-classicDark serif-text">Savollar To'plamlari Ombori</h2>
+                    <p class="text-sm text-gray-500">Har bir to'plam 12 ta turli mavzudagi professional savollardan iborat.</p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="triggerAddSet()" class="bg-classicDark text-white px-4 py-2 rounded hover:bg-opacity-90 transition font-medium text-sm flex items-center gap-2 w-full sm:w-auto justify-center">
+                        <span>➕ Yangi To'plam Qo'shish</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-col sm:flex-row items-center gap-4 sans-font">
+                <label class="font-bold text-classicDark text-sm min-w-max">Mavzu bo'yicha qidirish:</label>
+                <select id="topicFilter" onchange="filterSets()" class="w-full bg-classicLight border border-gray-300 p-2 rounded text-sm focus:outline-classicBrown">
+                    <option value="all">Barcha mavzular (Yaxlit Paketlar)</option>
+                    <option value="politics">Siyosat (Politics)</option>
+                    <option value="psychology">Psixologiya (Psychology)</option>
+                    <option value="biology">Biologiya (Biology)</option>
+                    <option value="literature">Adabiyot (Literature)</option>
+                    <option value="history">Tarix (History)</option>
+                    <option value="art">San'at (Art)</option>
+                    <option value="other">Boshqa mantiqiy mavzular</option>
+                </select>
+            </div>
+
+            <div id="setsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class="text-gray-500 italic sans-font col-span-full text-center py-8">Ma'lumotlar yuklanmoqda...</p>
+            </div>
+        </section>
+
+        <section id="page-contact" class="page-section hidden">
+            <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-sm border border-gray-200">
+                <h2 class="text-2xl font-bold text-classicDark mb-2 text-center">Apellatsiya va Takliflar</h2>
+                <p class="text-gray-600 text-center text-sm sans-font mb-6">Savollar bo'yicha e'tirozlar yoki yangi mualliflik savollaringiz bo'lsa, bizga xabar yuboring.</p>
+                <div class="w-16 h-1 bg-classicBrown mx-auto mb-6"></div>
+                
+                <div class="bg-classicLight p-6 rounded-md border border-gray-300 space-y-4 sans-font">
+                    <div>
+                        <span class="text-xs text-gray-500 block font-bold uppercase">Rasmiy Elektron Pochta:</span>
+                        <a href="mailto:mansurovsardor0115@gmail.com" class="text-lg font-bold text-classicBrown hover:underline">mansurovsardor0115@gmail.com</a>
+                    </div>
+                    <hr class="border-gray-300">
+                    <div>
+                        <span class="text-xs text-gray-500 block font-bold uppercase">Muallif va Moderator:</span>
+                        <p class="text-base font-semibold text-classicDark">Sardor Mansurov</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-game" class="page-section hidden">
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+                <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
+                    <button onclick="switchPage('bank')" class="text-sm font-semibold text-classicBrown hover:underline sans-font">← Bankka qaytish</button>
+                    <h2 id="activeSetName" class="text-xl font-bold text-classicDark">To'plam nomi</h2>
+                </div>
+
+                <div class="bg-classicDark text-white p-4 rounded-lg flex justify-between items-center mb-6 sans-font">
+                    <span class="font-medium text-sm text-gray-300">Avtomatik O'yin Taymeri:</span>
+                    <span id="gameTimer" class="text-2xl font-mono text-amber-400 font-bold">60:00</span>
+                </div>
+
+                <div id="questionsList" class="space-y-6"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-classicDark text-gray-400 text-xs py-6 mt-12 border-t border-classicBrown sans-font">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+            <div>
+                <p class="font-bold text-white text-sm">© ZakovatBank Intellektual Portali</p>
+                <p class="mt-1">Muallif: Sardor Mansurov. Barcha huquqlar himoyalangan.</p>
+            </div>
+            <div>
+                <p class="bg-classicBrown text-white px-3 py-1 rounded inline-block font-medium">Barcha resurslar bepul va ochiq</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="adminModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 sans-font">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-xl font-bold text-classicDark">Yangi 12 talik Savol To'plami Qo'shish</h3>
+                <button type="button" onclick="closeAdminModal()" class="text-gray-400 hover:text-black text-2xl">&times;</button>
+            </div>
+            
+            <form id="newSetForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-1">To'plam Nomi / Raqami *</label>
+                        <input type="text" id="formSetName" required placeholder="Masalan: To'plam #1" class="w-full border p-2 rounded text-sm focus:outline-classicDark">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Admin Maxfiy PIN Kodi *</label>
+                        <input type="password" id="formAdminPin" required placeholder="PIN kodni kiriting" class="w-full border p-2 rounded text-sm bg-amber-50 focus:outline-classicDark">
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <p class="text-xs text-classicBrown font-bold bg-amber-100 p-2 rounded">Diqqat! Quyida to'liq 12 ta savol, javob, izoh va mavzuni kiriting:</p>
+
+                <div id="formQuestionsContainer" class="space-y-4"></div>
+
+                <div class="border-t pt-4 flex justify-end gap-3">
+                    <button type="button" onclick="closeAdminModal()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-300">Bekor qilish</button>
+                    <button type="submit" class="bg-classicDark text-white px-6 py-2 rounded text-sm font-bold hover:bg-opacity-90">Tizimga / Google-ga joylash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // SIZNING SHAXSIY FIREBASE KALITLARINGIZ MUKAMMAL INTEGRATSIYASI
+        const firebaseConfig = {
+            apiKey: "AIzaSyBb8vtDeXF3YREA21FaLILKTsCRXgrZ_s4",
+            authDomain: "zakovatbank-d5452.firebaseapp.com",
+            projectId: "zakovatbank-d5452",
+            storageBucket: "zakovatbank-d5452.firebasestorage.app",
+            messagingSenderId: "139533669765",
+            appId: "1:139533669765:web:7194d25d78c4b1d34da0ec"
+        };
+
+        // Firebase-ni ishga tushirish
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allSetsData = [];
+        let timerInterval = null;
+
+        // Dasturni boshlash
+        window.addEventListener('DOMContentLoaded', () => {
+            generateFormInputFields();
+            switchPage('home');
+            fetchSetsData();
+
+            // Formani saqlash hodisasini bog'lash
+            const form = document.getElementById('newSetForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveNewSet();
+            });
+        });
+
+        // Sahifalararo o'tish tizimi
+        window.switchPage = function(pageId) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) targetPage.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('text-amber-400', 'border-b-2', 'border-amber-400'));
+            const activeBtn = document.getElementById(`btn-${pageId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('text-amber-400', 'border-b-2', 'border-amber-400');
+            }
+            
+            if(pageId !== 'game' && timerInterval) {
+                clearInterval(timerInterval);
+            }
+        }
+
+        // Ma'lumotlarni Firebase-dan o'qib olish (Real-time va Global)
+        async function fetchSetsData() {
+            const container = document.getElementById('setsContainer');
+            try {
+                const q = query(collection(db, "zakovat_sets"));
+                const querySnapshot = await getDocs(q);
+                allSetsData = [];
+                
+                querySnapshot.forEach((doc) => {
+                    allSetsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderSetsGrid(allSetsData);
+            } catch (error) {
+                console.error("Xatolik yuz berdi:", error);
+                container.innerHTML = `<p class="text-red-500 text-center col-span-full sans-font">Ma'lumotlarni yuklashda xatolik yuz berdi. Iltimos, Firebase Firestore bazasida 'Test Mode' yoqilganini tekshiring.</p>`;
+            }
+        }
+
+        function renderSetsGrid(data) {
+            const container = document.getElementById('setsContainer');
+            if(data.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 italic sans-font col-span-full text-center py-8">Hozircha hech qanday to'plam yuklanmagan. O'ng tomondagi tugma orqali yangi to'plam qo'shing!</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            data.forEach((set) => {
+                let categorizationBadges = new Set();
+                set.questions.forEach(q => categorizationBadges.add(q.category.toUpperCase()));
+                let tagsMarkup = Array.from(categorizationBadges).slice(0,3).map(t => `<span class="bg-gray-100 text-gray-700 text-[10px] px-2 py-0.5 rounded border border-gray-200 font-semibold">${t}</span>`).join(' ');
+
+                const cardHtml = `
+                    <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between hover:border-classicBrown transition">
+                        <div>
+                            <span class="text-[11px] text-classicBrown font-bold tracking-widest uppercase block mb-1">🧠 12 talik Paket</span>
+                            <h4 class="text-xl font-bold text-classicDark mb-3">${set.setName}</h4>
+                            <div class="flex flex-wrap gap-1 mb-4 sans-font">${tagsMarkup}</div>
+                        </div>
+                        <button onclick="startActiveGame('${set.id}')" class="w-full bg-classicLight border border-classicDark text-classicDark font-bold py-2 px-4 rounded hover:bg-classicDark hover:text-white transition text-xs sans-font tracking-wide">
+                            To'plamni ochish va Taymerni boshlash
+                        </button>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // Mavzular bo'yicha qidirish / saralash funksiyasi
+        window.filterSets = function() {
+            const filterValue = document.getElementById('topicFilter').value;
+            if(filterValue === 'all') {
+                renderSetsGrid(allSetsData);
+            } else {
+                const filtered = allSetsData.filter(set => {
+                    return set.questions.some(q => q.category === filterValue);
+                });
+                renderSetsGrid(filtered);
+            }
+        }
+
+        // O'yin sahifasini boshlash (Taymerni avtomatik yoqish)
+        window.startActiveGame = function(setId) {
+            const targetSet = allSetsData.find(s => s.id === setId);
+            if(!targetSet) return;
+
+            document.getElementById('activeSetName').innerText = targetSet.setName;
+            const qListContainer = document.getElementById('questionsList');
+            qListContainer.innerHTML = '';
+
+            targetSet.questions.forEach((q, index) => {
+                const itemHtml = `
+                    <div class="bg-classicLight p-5 rounded-lg border border-gray-200 relative">
+                        <div class="flex justify-between items-start gap-2 mb-3">
+                            <span class="bg-classicDark text-white text-xs font-bold px-2.5 py-1 rounded sans-font">№ ${index + 1} Savol</span>
+                            <span class="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] px-2 py-0.5 rounded font-bold uppercase sans-font">${q.category}</span>
+                        </div>
+                        <p class="text-lg text-classicBlack font-medium mb-4 leading-relaxed">${q.questionText}</p>
+                        
+                        <div class="sans-font">
+                            <button onclick="toggleAnswerVisibility(${index})" id="ans-btn-${index}" class="bg-classicBrown text-white text-xs font-bold px-4 py-1.5 rounded shadow-sm hover:bg-opacity-90 transition">
+                                Javobni va Izohni ko'rish
+                            </button>
+                            <div id="ans-box-${index}" class="hidden mt-4 p-4 bg-white border border-l-4 border-l-emerald-600 border-gray-300 rounded space-y-2">
+                                <p class="text-sm text-gray-900"><strong>To'g'ri Javob:</strong> ${q.answerText}</p>
+                                <p class="text-xs text-gray-600 leading-relaxed"><strong>Mantiqiy Izoh:</strong> ${q.explanationText}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                qListContainer.insertAdjacentHTML('beforeend', itemHtml);
+            });
+
+            switchPage('game');
+            startCountdownTimer();
+        }
+
+        function startCountdownTimer() {
+            if(timerInterval) clearInterval(timerInterval);
+            let totalSeconds = 60 * 60; 
+            const timerDisplay = document.getElementById('gameTimer');
+
+            timerInterval = setInterval(() => {
+                let minutes = Math.floor(totalSeconds / 60);
+                let seconds = totalSeconds % 60;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                timerDisplay.innerText = `${minutes}:${seconds}`;
+
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.innerText = "Vaqt tugadi!";
+                }
+                totalSeconds--;
+            }, 1000);
+        }
+
+        window.toggleAnswerVisibility = function(index) {
+            const box = document.getElementById(`ans-box-${index}`);
+            const btn = document.getElementById(`ans-btn-${index}`);
+            if(box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+                btn.innerText = "Yashirish";
+                btn.classList.replace('bg-classicBrown', 'bg-gray-500');
+            } else {
+                box.classList.add('hidden');
+                btn.innerText = "Javobni va Izohni ko'rish";
+                btn.classList.replace('bg-gray-500', 'bg-classicBrown');
+            }
+        }
+
+        // Admin paneldagi 12 ta savol kiritish maydonini avtomat yaratish
+        function generateFormInputFields() {
+            const container = document.getElementById('formQuestionsContainer');
+            container.innerHTML = '';
+            for(let i = 1; i <= 12; i++) {
+                const markup = `
+                    <div class="p-4 bg-gray-50 rounded border border-gray-300 space-y-2">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-bold text-classicDark">Savol #${i}</span>
+                            <select id="formQCategory-${i}" required class="bg-white border p-1 rounded text-xs focus:outline-classicDark">
+                                <option value="literature">Adabiyot (Literature)</option>
+                                <option value="history">Tarix (History)</option>
+                                <option value="politics">Siyosat (Politics)</option>
+                                <option value="psychology">Psixologiya (Psychology)</option>
+                                <option value="biology">Biologiya (Biology)</option>
+                                <option value="art">San'at (Art)</option>
+                                <option value="other">Boshqa mantiqiy mavzular</option>
+                            </select>
+                        </div>
+                        <textarea id="formQText-${i}" required rows="2" placeholder="Savol matnini kiriting..." class="w-full border p-2 rounded text-xs focus:outline-classicDark"></textarea>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <input type="text" id="formQAnswer-${i}" required placeholder="Aniq To'g'ri Javob" class="w-full border p-2 rounded text-xs focus:outline-classicDark">
+                            <input type="text" id="formQExplanation-${i}" required placeholder="Mantiqiy Izoh / Manba" class="w-full border p-2 rounded text-xs focus:outline-classicDark">
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', markup);
+            }
+        }
+
+        window.triggerAddSet = function() {
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        window.closeAdminModal = function() {
+            document.getElementById('adminModal').classList.add('hidden');
+            document.getElementById('newSetForm').reset();
+        }
+
+        // MA'LUMOTLARNI JONLI REJIMDA FIRESTORE BAZASIGA SAQLASH FUNKSIYASI
+        async function saveNewSet() {
+            const pinEntered = document.getElementById('formAdminPin').value;
+            if(pinEntered !== '20090115_Sa@') {
+                alert("Xato maxfiy PIN kod! Sizda to'plam qo'shish huquqi yo'q.");
+                return;
+            }
+
+            const setName = document.getElementById('formSetName').value;
+            const parsedQuestions = [];
+
+            for(let i = 1; i <= 12; i++) {
+                parsedQuestions.push({
+                    questionText: document.getElementById(`formQText-${i}`).value,
+                    answerText: document.getElementById(`formQAnswer-${i}`).value,
+                    explanationText: document.getElementById(`formQExplanation-${i}`).value,
+                    category: document.getElementById(`formQCategory-${i}`).value
+                });
+            }
+
+            try {
+                // Ob'ektni Firebase global bazasiga yozish
+                await addDoc(collection(db, "zakovat_sets"), {
+                    setName: setName,
+                    questions: parsedQuestions,
+                    createdAt: new Date().toISOString()
+                });
+
+                alert("Muvaffaqiyatli yuklandi! To'plam Firebase orqali Google-da jonli rejimda hamma uchun ochiq.");
+                closeAdminModal();
+                fetchSetsData(); // Sahifadagi ro'yxatni yangilash
+            } catch (e) {
+                console.error("Firebase-ga yozishda xatolik:", e);
+                alert("Firebase bazasiga ulanishda muammo bo'ldi. Iltimos, Firebase konsolida Cloud Firestore yaratilganini va qoidalar (Rules) bo'limida Test Mode yoqilganini tekshiring.");
+            }
+        }
+    </script>
+</body>
+</html>
