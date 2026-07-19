@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZakovatBank — Intellektual Savollar Bazasi</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -26,11 +25,12 @@
         .admin-only { display: none; }
         body.is-admin .admin-only { display: flex; }
         body.is-admin .admin-only.block-when-admin { display: block; }
+        .bankview-hidden { display: none; }
+        .subject-tile.active-subject { background-color: #0B192C; color: white; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- NAVIGATION BAR -->
     <nav class="bg-classicDark text-white shadow-md border-b-4 border-classicBrown">
         <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="text-center sm:text-left">
@@ -45,10 +45,9 @@
         </div>
     </nav>
 
-    <!-- MAIN CONTENT CONTAINERS -->
     <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6">
 
-        <!-- 1. HOME PAGE (BOSH SAHIFA) — umumiy ma'lumot, ism yo'q -->
+        <!-- 1. HOME PAGE -->
         <section id="page-home" class="page-section hidden">
             <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-200 mb-6">
                 <h2 class="text-3xl font-bold text-classicDark mb-4 text-center">Zakovat nima?</h2>
@@ -74,12 +73,12 @@
             </div>
         </section>
 
-        <!-- 2. QUESTION BANK PAGE (SAVOLLAR BANKI) -->
+        <!-- 2. QUESTION BANK PAGE -->
         <section id="page-bank" class="page-section hidden">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sans-font">
                 <div>
                     <h2 class="text-2xl font-bold text-classicDark serif-text">Savollar To'plamlari Ombori</h2>
-                    <p class="text-sm text-gray-500">Har bir to'plam 12 ta turli mavzudagi professional savollardan iborat.</p>
+                    <p class="text-sm text-gray-500">Har bir to'plam 12 ta turli fandagi professional savollardan iborat. Savollar bir nechta fanga tegishli bo'lishi mumkin.</p>
                 </div>
                 <div class="flex gap-2 w-full sm:w-auto admin-only" id="addSetBtnWrap">
                     <button onclick="triggerAddSet()" class="bg-classicDark text-white px-4 py-2 rounded hover:bg-opacity-90 transition font-medium text-sm flex items-center gap-2 w-full sm:w-auto justify-center">
@@ -88,28 +87,39 @@
                 </div>
             </div>
 
-            <!-- SEARCH / FILTER COMPONENT -->
-            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-col sm:flex-row items-center gap-4 sans-font">
-                <label class="font-bold text-classicDark text-sm min-w-max">Mavzu bo'yicha qidirish:</label>
-                <select id="topicFilter" onchange="filterSets()" class="w-full bg-classicLight border border-gray-300 p-2 rounded text-sm focus:outline-classicBrown">
-                    <option value="all">Barcha mavzular (Yaxlit Paketlar)</option>
-                    <option value="politics">Siyosat (Politics)</option>
-                    <option value="psychology">Psixologiya (Psychology)</option>
-                    <option value="biology">Biologiya (Biology)</option>
-                    <option value="literature">Adabiyot (Literature)</option>
-                    <option value="history">Tarix (History)</option>
-                    <option value="art">San'at (Art)</option>
-                    <option value="other">Boshqa mantiqiy mavzular</option>
-                </select>
+            <!-- VIEW MODE TOGGLE -->
+            <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 mb-6 flex gap-2 sans-font w-full sm:w-auto sm:inline-flex">
+                <button onclick="switchBankView('sets')" id="viewbtn-sets" class="flex-1 sm:flex-none px-4 py-2 rounded text-sm font-bold transition">To'plamlar bo'yicha</button>
+                <button onclick="switchBankView('subjects')" id="viewbtn-subjects" class="flex-1 sm:flex-none px-4 py-2 rounded text-sm font-bold transition">Fanlar bo'yicha</button>
             </div>
 
-            <!-- DYNAMIC SETS GRID -->
-            <div id="setsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <p class="text-gray-500 italic sans-font col-span-full text-center py-8">Ma'lumotlar yuklanmoqda...</p>
+            <!-- SETS VIEW -->
+            <div id="bankview-sets">
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-col sm:flex-row items-center gap-4 sans-font">
+                    <label class="font-bold text-classicDark text-sm min-w-max">To'plamlarni fan bo'yicha saralash:</label>
+                    <select id="topicFilter" onchange="filterSets()" class="w-full bg-classicLight border border-gray-300 p-2 rounded text-sm focus:outline-classicBrown">
+                        <option value="all">Barcha fanlar (Yaxlit Paketlar)</option>
+                    </select>
+                </div>
+
+                <div id="setsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <p class="text-gray-500 italic sans-font col-span-full text-center py-8">Ma'lumotlar yuklanmoqda...</p>
+                </div>
+            </div>
+
+            <!-- SUBJECTS VIEW -->
+            <div id="bankview-subjects" class="bankview-hidden">
+                <div id="subjectTileGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6 sans-font"></div>
+
+                <div id="subjectQuestionsWrap" class="bankview-hidden">
+                    <button onclick="backToSubjectTiles()" class="text-sm font-semibold text-classicBrown hover:underline sans-font mb-4">← Fanlarga qaytish</button>
+                    <h3 id="subjectQuestionsTitle" class="text-xl font-bold text-classicDark mb-4"></h3>
+                    <div id="subjectQuestionsList" class="space-y-4"></div>
+                </div>
             </div>
         </section>
 
-        <!-- 3. CONTACT / INFO PAGE (ALOQA) -->
+        <!-- 3. CONTACT / INFO PAGE -->
         <section id="page-contact" class="page-section hidden">
             <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-sm border border-gray-200">
                 <h2 class="text-2xl font-bold text-classicDark mb-2 text-center">Loyiha va Muallif Haqida</h2>
@@ -136,7 +146,6 @@
                     </div>
                 </div>
 
-                <!-- ADMIN GATE -->
                 <div class="border-t border-gray-200 pt-6">
                     <div id="adminGateWrap">
                         <button onclick="triggerAdminCheck()" class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded text-xs font-semibold hover:bg-gray-200 transition sans-font">
@@ -166,7 +175,6 @@
         </section>
     </main>
 
-    <!-- FOOTER -->
     <footer class="bg-classicDark text-gray-400 text-xs py-6 mt-12 border-t border-classicBrown sans-font">
         <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
             <div>
@@ -179,7 +187,6 @@
         </div>
     </footer>
 
-    <!-- MODAL: ADMIN PASSWORD -->
     <div id="adminPassModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 sans-font">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -196,7 +203,6 @@
         </div>
     </div>
 
-    <!-- MODAL LAYERS FOR ADD SET -->
     <div id="adminModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 sans-font">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -211,7 +217,7 @@
                 </div>
 
                 <hr class="my-4">
-                <p class="text-xs text-classicBrown font-bold bg-amber-100 p-2 rounded">Diqqat! Quyida to'liq 12 ta savol, javob, izoh va mavzuni kiriting:</p>
+                <p class="text-xs text-classicBrown font-bold bg-amber-100 p-2 rounded">Diqqat! Quyida to'liq 12 ta savol, javob, izoh va fan(lar)ni kiriting. Har bir savolga 1 tadan 3 tagacha fan belgilashingiz mumkin (Zakovat savollari ko'pincha fanlararo bo'ladi).</p>
 
                 <div id="formQuestionsContainer" class="space-y-4"></div>
 
@@ -223,33 +229,57 @@
         </div>
     </div>
 
-    <!-- MAIN LOGIC AND BACKEND INTEGRATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
 
-        // FIREBASE INTEGRATSIYASI
         const firebaseConfig = {
             apiKey: "AIzaSyBb8vtDeXF3YREA21FaLILKTsCRXgrZ_s4",
             authDomain: "zakovatbank-d5452.firebaseapp.com",
             projectId: "zakovatbank-d5452",
             storageBucket: "zakovatbank-d5452.firebasestorage.app",
             messagingSenderId: "139533669765",
-            appId: "1:139533669765:web:7194d25d78c4b1d34da0ec"
+            appId: "1:139533669765:web:7194d25d78c4b1d34da0ec",
+            measurementId: "G-Q08JRMQ3BZ"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const analytics = getAnalytics(app);
 
         const ADMIN_PASSWORD = "80-maktab.zakovat";
         let isAdmin = false;
 
+        // FAN RO'YXATI — barchasi o'zbek tilida
+        const SUBJECTS = [
+            { value: 'adabiyot', label: "Adabiyot" },
+            { value: 'algebra', label: "Algebra" },
+            { value: 'biologiya', label: "Biologiya" },
+            { value: 'kimyo', label: "Kimyo" },
+            { value: 'sanat', label: "San'at" },
+            { value: 'ona_tili', label: "Ona tili" },
+            { value: 'tarix', label: "Tarix" },
+            { value: 'siyosatshunoslik', label: "Siyosatshunoslik" },
+            { value: 'harbiy_bilim', label: "Harbiy bilim" },
+            { value: 'ingliz_tili', label: "Ingliz tili" },
+            { value: 'rus_tili', label: "Rus tili" },
+            { value: 'madaniyat', label: "Madaniyat" },
+            { value: 'fizika', label: "Fizika" },
+            { value: 'aralash', label: "Aralash" }
+        ];
+        const SUBJECT_LABELS = Object.fromEntries(SUBJECTS.map(s => [s.value, s.label]));
+
         let allSetsData = [];
         let timerInterval = null;
+        let bankViewMode = 'sets';
 
         window.addEventListener('DOMContentLoaded', () => {
+            populateTopicFilter();
             generateFormInputFields();
+            renderSubjectTiles();
             switchPage('home');
+            switchBankView('sets');
             fetchSetsData();
 
             document.getElementById('newSetForm').addEventListener('submit', async function(e) {
@@ -294,6 +324,41 @@
             if (pageId !== 'game' && timerInterval) clearInterval(timerInterval);
         }
 
+        window.switchBankView = function(mode) {
+            bankViewMode = mode;
+            const setsWrap = document.getElementById('bankview-sets');
+            const subjWrap = document.getElementById('bankview-subjects');
+            const btnSets = document.getElementById('viewbtn-sets');
+            const btnSubj = document.getElementById('viewbtn-subjects');
+
+            if (mode === 'sets') {
+                setsWrap.classList.remove('bankview-hidden');
+                subjWrap.classList.add('bankview-hidden');
+                btnSets.classList.add('bg-classicDark', 'text-white');
+                btnSets.classList.remove('bg-gray-100', 'text-gray-600');
+                btnSubj.classList.add('bg-gray-100', 'text-gray-600');
+                btnSubj.classList.remove('bg-classicDark', 'text-white');
+            } else {
+                setsWrap.classList.add('bankview-hidden');
+                subjWrap.classList.remove('bankview-hidden');
+                btnSubj.classList.add('bg-classicDark', 'text-white');
+                btnSubj.classList.remove('bg-gray-100', 'text-gray-600');
+                btnSets.classList.add('bg-gray-100', 'text-gray-600');
+                btnSets.classList.remove('bg-classicDark', 'text-white');
+                backToSubjectTiles();
+            }
+        }
+
+        function populateTopicFilter() {
+            const select = document.getElementById('topicFilter');
+            SUBJECTS.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.value;
+                opt.innerText = s.label;
+                select.appendChild(opt);
+            });
+        }
+
         window.triggerAdminCheck = function() {
             document.getElementById('adminPassModal').classList.remove('hidden');
         }
@@ -309,6 +374,12 @@
             return `${day}/${month}/${year}`;
         }
 
+        function getQuestionSubjects(q) {
+            if (Array.isArray(q.categories) && q.categories.length > 0) return q.categories;
+            if (q.category) return [q.category];
+            return [];
+        }
+
         async function fetchSetsData() {
             const container = document.getElementById('setsContainer');
             try {
@@ -320,6 +391,7 @@
                 allSetsData.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
 
                 renderSetsGrid(allSetsData);
+                renderSubjectTiles();
             } catch (error) {
                 console.error("Xatolik yuz berdi:", error);
                 container.innerHTML = `<p class="text-red-500 text-center col-span-full sans-font">Ma'lumotlarni yuklashda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.</p>`;
@@ -339,9 +411,9 @@
                     if (!Array.isArray(set.questions) || set.questions.length === 0) return;
 
                     let categorizationBadges = new Set();
-                    set.questions.forEach(q => { if (q && q.category) categorizationBadges.add(q.category.toUpperCase()); });
-                    let tagsMarkup = Array.from(categorizationBadges).slice(0, 3)
-                        .map(t => `<span class="bg-gray-100 text-gray-700 text-[10px] px-2 py-0.5 rounded border border-gray-200 font-semibold">${t}</span>`).join(' ');
+                    set.questions.forEach(q => getQuestionSubjects(q).forEach(c => categorizationBadges.add(c)));
+                    let tagsMarkup = Array.from(categorizationBadges).slice(0, 5)
+                        .map(c => `<span class="bg-gray-100 text-gray-700 text-[10px] px-2 py-0.5 rounded border border-gray-200 font-semibold">${SUBJECT_LABELS[c] || c}</span>`).join(' ');
 
                     const dateLabel = set.createdAt ? formatDate(set.createdAt) : "—";
 
@@ -375,9 +447,104 @@
             if (filterValue === 'all') {
                 renderSetsGrid(allSetsData);
             } else {
-                const filtered = allSetsData.filter(set => Array.isArray(set.questions) && set.questions.some(q => q.category === filterValue));
+                const filtered = allSetsData.filter(set => Array.isArray(set.questions) && set.questions.some(q => getQuestionSubjects(q).includes(filterValue)));
                 renderSetsGrid(filtered);
             }
+        }
+
+        function renderSubjectTiles() {
+            const grid = document.getElementById('subjectTileGrid');
+            if (!grid) return;
+
+            const counts = {};
+            SUBJECTS.forEach(s => counts[s.value] = 0);
+            allSetsData.forEach(set => {
+                if (!Array.isArray(set.questions)) return;
+                set.questions.forEach(q => getQuestionSubjects(q).forEach(c => {
+                    if (counts[c] !== undefined) counts[c]++;
+                }));
+            });
+
+            grid.innerHTML = '';
+            SUBJECTS.forEach(s => {
+                const tile = document.createElement('button');
+                tile.className = "subject-tile bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-classicBrown transition sans-font";
+                tile.innerHTML = `
+                    <div class="font-bold text-classicDark text-sm">${s.label}</div>
+                    <div class="text-xs text-gray-500 mt-1">${counts[s.value]} ta savol</div>
+                `;
+                tile.onclick = () => browseSubject(s.value);
+                grid.appendChild(tile);
+            });
+        }
+
+        window.browseSubject = function(subjectValue) {
+            document.getElementById('subjectTileGrid').classList.add('bankview-hidden');
+            const wrap = document.getElementById('subjectQuestionsWrap');
+            wrap.classList.remove('bankview-hidden');
+
+            document.getElementById('subjectQuestionsTitle').innerText = `${SUBJECT_LABELS[subjectValue] || subjectValue} — savollar`;
+
+            const flatQuestions = [];
+            allSetsData.forEach((set, setIdx) => {
+                if (!Array.isArray(set.questions)) return;
+                set.questions.forEach((q, qIdx) => {
+                    if (getQuestionSubjects(q).includes(subjectValue)) {
+                        flatQuestions.push({ q, setName: set.setName, setOrder: setIdx + 1, qIdx });
+                    }
+                });
+            });
+
+            const listContainer = document.getElementById('subjectQuestionsList');
+            listContainer.innerHTML = '';
+
+            if (flatQuestions.length === 0) {
+                listContainer.innerHTML = `<p class="text-gray-500 italic sans-font text-center py-8">Bu fan bo'yicha hozircha savollar yo'q.</p>`;
+                return;
+            }
+
+            flatQuestions.forEach((item, index) => {
+                const subjTags = getQuestionSubjects(item.q).map(c => `<span class="bg-gray-100 text-gray-700 text-[10px] px-2 py-0.5 rounded border border-gray-200 font-semibold">${SUBJECT_LABELS[c] || c}</span>`).join(' ');
+                const itemHtml = `
+                    <div class="bg-classicLight p-5 rounded-lg border border-gray-200 relative">
+                        <div class="flex justify-between items-start gap-2 mb-3 flex-wrap">
+                            <span class="bg-classicDark text-white text-xs font-bold px-2.5 py-1 rounded sans-font">№ ${index + 1}</span>
+                            <span class="text-[11px] text-gray-500 sans-font">To'plam №${item.setOrder}: ${item.setName ?? ''}</span>
+                            <div class="flex flex-wrap gap-1 sans-font">${subjTags}</div>
+                        </div>
+                        <p class="text-lg text-classicBlack font-medium mb-4 leading-relaxed">${item.q.questionText}</p>
+                        <div class="sans-font">
+                            <button onclick="toggleSubjectAnswer(${index})" id="subj-ans-btn-${index}" class="bg-classicBrown text-white text-xs font-bold px-4 py-1.5 rounded shadow-sm hover:bg-opacity-90 transition">
+                                Javobni va Izohni ko'rish
+                            </button>
+                            <div id="subj-ans-box-${index}" class="hidden mt-4 p-4 bg-white border border-l-4 border-l-emerald-600 border-gray-300 rounded space-y-2">
+                                <p class="text-sm text-gray-900"><strong>To'g'ri Javob:</strong> ${item.q.answerText}</p>
+                                <p class="text-xs text-gray-600 leading-relaxed"><strong>Mantiqiy Izoh:</strong> ${item.q.explanationText}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                listContainer.insertAdjacentHTML('beforeend', itemHtml);
+            });
+        }
+
+        window.toggleSubjectAnswer = function(index) {
+            const box = document.getElementById(`subj-ans-box-${index}`);
+            const btn = document.getElementById(`subj-ans-btn-${index}`);
+            if (box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+                btn.innerText = "Yashirish";
+                btn.classList.replace('bg-classicBrown', 'bg-gray-500');
+            } else {
+                box.classList.add('hidden');
+                btn.innerText = "Javobni va Izohni ko'rish";
+                btn.classList.replace('bg-gray-500', 'bg-classicBrown');
+            }
+        }
+
+        window.backToSubjectTiles = function() {
+            document.getElementById('subjectTileGrid').classList.remove('bankview-hidden');
+            document.getElementById('subjectQuestionsWrap').classList.add('bankview-hidden');
         }
 
         window.startActiveGame = function(setId) {
@@ -389,11 +556,12 @@
             qListContainer.innerHTML = '';
 
             targetSet.questions.forEach((q, index) => {
+                const subjTags = getQuestionSubjects(q).map(c => `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] px-2 py-0.5 rounded font-bold sans-font">${SUBJECT_LABELS[c] || c}</span>`).join(' ');
                 const itemHtml = `
                     <div class="bg-classicLight p-5 rounded-lg border border-gray-200 relative">
-                        <div class="flex justify-between items-start gap-2 mb-3">
+                        <div class="flex justify-between items-start gap-2 mb-3 flex-wrap">
                             <span class="bg-classicDark text-white text-xs font-bold px-2.5 py-1 rounded sans-font">№ ${index + 1} Savol</span>
-                            <span class="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] px-2 py-0.5 rounded font-bold uppercase sans-font">${q.category}</span>
+                            <div class="flex flex-wrap gap-1">${subjTags}</div>
                         </div>
                         <p class="text-lg text-classicBlack font-medium mb-4 leading-relaxed">${q.questionText}</p>
                         <div class="sans-font">
@@ -448,6 +616,14 @@
             }
         }
 
+        function subjectOptionsHtml(includeEmpty) {
+            let html = includeEmpty ? `<option value="">— tanlanmagan —</option>` : '';
+            SUBJECTS.forEach(s => {
+                html += `<option value="${s.value}">${s.label}</option>`;
+            });
+            return html;
+        }
+
         function generateFormInputFields() {
             const container = document.getElementById('formQuestionsContainer');
             container.innerHTML = '';
@@ -456,15 +632,26 @@
                     <div class="p-4 bg-gray-50 rounded border border-gray-300 space-y-2">
                         <div class="flex justify-between items-center mb-1">
                             <span class="text-sm font-bold text-classicDark">Savol #${i}</span>
-                            <select id="formQCategory-${i}" required class="bg-white border p-1 rounded text-xs focus:outline-classicDark">
-                                <option value="literature">Adabiyot (Literature)</option>
-                                <option value="history">Tarix (History)</option>
-                                <option value="politics">Siyosat (Politics)</option>
-                                <option value="psychology">Psixologiya (Psychology)</option>
-                                <option value="biology">Biologiya (Biology)</option>
-                                <option value="art">San'at (Art)</option>
-                                <option value="other">Boshqa mantiqiy mavzular</option>
-                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[10px] text-gray-500 font-bold uppercase block mb-0.5">Fan 1 *</label>
+                                <select id="formQCategory1-${i}" required class="w-full bg-white border p-1 rounded text-xs focus:outline-classicDark">
+                                    ${subjectOptionsHtml(false)}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 font-bold uppercase block mb-0.5">Fan 2 (ixtiyoriy)</label>
+                                <select id="formQCategory2-${i}" class="w-full bg-white border p-1 rounded text-xs focus:outline-classicDark">
+                                    ${subjectOptionsHtml(true)}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 font-bold uppercase block mb-0.5">Fan 3 (ixtiyoriy)</label>
+                                <select id="formQCategory3-${i}" class="w-full bg-white border p-1 rounded text-xs focus:outline-classicDark">
+                                    ${subjectOptionsHtml(true)}
+                                </select>
+                            </div>
                         </div>
                         <textarea id="formQText-${i}" required rows="2" placeholder="Savol matnini kiriting..." class="w-full border p-2 rounded text-xs focus:outline-classicDark"></textarea>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -493,11 +680,16 @@
             const setName = document.getElementById('formSetName').value;
             const parsedQuestions = [];
             for (let i = 1; i <= 12; i++) {
+                const cat1 = document.getElementById(`formQCategory1-${i}`).value;
+                const cat2 = document.getElementById(`formQCategory2-${i}`).value;
+                const cat3 = document.getElementById(`formQCategory3-${i}`).value;
+                const categories = [...new Set([cat1, cat2, cat3].filter(v => v))];
+
                 parsedQuestions.push({
                     questionText: document.getElementById(`formQText-${i}`).value,
                     answerText: document.getElementById(`formQAnswer-${i}`).value,
                     explanationText: document.getElementById(`formQExplanation-${i}`).value,
-                    category: document.getElementById(`formQCategory-${i}`).value
+                    categories: categories
                 });
             }
 
