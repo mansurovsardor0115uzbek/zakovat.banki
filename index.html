@@ -229,9 +229,13 @@
         </div>
     </div>
 
+    <div id="imgLightbox" onclick="this.classList.add('hidden')" class="fixed inset-0 bg-black bg-opacity-80 z-[60] flex items-center justify-center p-4 hidden cursor-zoom-out">
+        <img id="imgLightboxImg" class="max-w-full max-h-full rounded">
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
 
         const firebaseConfig = {
@@ -253,22 +257,24 @@
 
         // FAN RO'YXATI — barchasi o'zbek tilida
         const SUBJECTS = [
-            { value: 'adabiyot', label: "Adabiyot" },
-            { value: 'algebra', label: "Algebra" },
-            { value: 'biologiya', label: "Biologiya" },
-            { value: 'kimyo', label: "Kimyo" },
-            { value: 'sanat', label: "San'at" },
-            { value: 'ona_tili', label: "Ona tili" },
-            { value: 'tarix', label: "Tarix" },
-            { value: 'siyosatshunoslik', label: "Siyosatshunoslik" },
-            { value: 'harbiy_bilim', label: "Harbiy bilim" },
-            { value: 'ingliz_tili', label: "Ingliz tili" },
-            { value: 'rus_tili', label: "Rus tili" },
-            { value: 'madaniyat', label: "Madaniyat" },
-            { value: 'fizika', label: "Fizika" },
-            { value: 'aralash', label: "Aralash" }
+            { value: 'adabiyot', label: "Adabiyot", icon: '📚' },
+            { value: 'algebra', label: "Algebra", icon: '➗' },
+            { value: 'biologiya', label: "Biologiya", icon: '🧬' },
+            { value: 'kimyo', label: "Kimyo", icon: '⚗️' },
+            { value: 'sanat', label: "San'at", icon: '🎨' },
+            { value: 'ona_tili', label: "Ona tili", icon: '✍️' },
+            { value: 'tarix', label: "Tarix", icon: '🏛️' },
+            { value: 'siyosatshunoslik', label: "Siyosatshunoslik", icon: '⚖️' },
+            { value: 'harbiy_bilim', label: "Harbiy bilim", icon: '🎖️' },
+            { value: 'ingliz_tili', label: "Ingliz tili", icon: '💬' },
+            { value: 'rus_tili', label: "Rus tili", icon: '🗣️' },
+            { value: 'madaniyat', label: "Madaniyat", icon: '🎭' },
+            { value: 'fizika', label: "Fizika", icon: '⚛️' },
+            { value: 'geografiya', label: "Geografiya", icon: '🌍' },
+            { value: 'aralash', label: "Aralash", icon: '🧩' }
         ];
         const SUBJECT_LABELS = Object.fromEntries(SUBJECTS.map(s => [s.value, s.label]));
+        const LEGACY_SUBJECTS = { other: 'aralash', history: 'tarix', art: 'sanat', literature: 'adabiyot', politics: 'siyosatshunoslik' };
 
         let allSetsData = [];
         let timerInterval = null;
@@ -431,7 +437,7 @@
                                 <button onclick="startActiveGame('${set.id}')" class="flex-1 bg-classicLight border border-classicDark text-classicDark font-bold py-2 px-4 rounded hover:bg-classicDark hover:text-white transition text-xs sans-font tracking-wide">
                                     To'plamni ochish va Taymerni boshlash
                                 </button>
-                                ${isAdmin ? `<button onclick="deleteSet('${set.id}')" class="bg-red-50 border border-red-300 text-red-600 font-bold py-2 px-3 rounded hover:bg-red-600 hover:text-white transition text-xs sans-font">🗑</button>` : ''}
+                                ${isAdmin ? `<button onclick="editSet('${set.id}')" class="bg-amber-50 border border-amber-300 text-amber-700 font-bold py-2 px-3 rounded hover:bg-amber-500 hover:text-white transition text-xs sans-font">✏️</button><button onclick="deleteSet('${set.id}')" class="bg-red-50 border border-red-300 text-red-600 font-bold py-2 px-3 rounded hover:bg-red-600 hover:text-white transition text-xs sans-font">🗑</button>` : ''}
                             </div>
                         </div>
                     `;
@@ -468,10 +474,13 @@
             grid.innerHTML = '';
             SUBJECTS.forEach(s => {
                 const tile = document.createElement('button');
-                tile.className = "subject-tile bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-classicBrown transition sans-font";
+                tile.className = "subject-tile bg-white border border-gray-200 rounded-lg p-3 text-left hover:border-classicBrown transition sans-font flex items-center gap-3";
                 tile.innerHTML = `
-                    <div class="font-bold text-classicDark text-sm">${s.label}</div>
-                    <div class="text-xs text-gray-500 mt-1">${counts[s.value]} ta savol</div>
+                    <div class="w-11 h-11 shrink-0 rounded-md bg-classicLight border border-gray-200 flex items-center justify-center text-2xl">${s.icon}</div>
+                    <div>
+                        <div class="font-bold text-classicDark text-sm">${s.label}</div>
+                        <div class="text-xs text-gray-500 mt-0.5">${counts[s.value]} ta savol</div>
+                    </div>
                 `;
                 tile.onclick = () => browseSubject(s.value);
                 grid.appendChild(tile);
@@ -513,6 +522,7 @@
                             <div class="flex flex-wrap gap-1 sans-font">${subjTags}</div>
                         </div>
                         <p class="text-lg text-classicBlack font-medium mb-4 leading-relaxed">${item.q.questionText}</p>
+                        ${item.q.imageData ? `<img src="${item.q.imageData}" onclick="openImage(this.src)" class="max-h-64 max-w-full rounded border border-gray-300 mb-4 cursor-zoom-in bg-white">` : ''}
                         <div class="sans-font">
                             <button onclick="toggleSubjectAnswer(${index})" id="subj-ans-btn-${index}" class="bg-classicBrown text-white text-xs font-bold px-4 py-1.5 rounded shadow-sm hover:bg-opacity-90 transition">
                                 Javobni va Izohni ko'rish
@@ -564,6 +574,7 @@
                             <div class="flex flex-wrap gap-1">${subjTags}</div>
                         </div>
                         <p class="text-lg text-classicBlack font-medium mb-4 leading-relaxed">${q.questionText}</p>
+                        ${q.imageData ? `<img src="${q.imageData}" onclick="openImage(this.src)" class="max-h-64 max-w-full rounded border border-gray-300 mb-4 cursor-zoom-in bg-white">` : ''}
                         <div class="sans-font">
                             <button onclick="toggleAnswerVisibility(${index})" id="ans-btn-${index}" class="bg-classicBrown text-white text-xs font-bold px-4 py-1.5 rounded shadow-sm hover:bg-opacity-90 transition">
                                 Javobni va Izohni ko'rish
@@ -658,20 +669,130 @@
                             <input type="text" id="formQAnswer-${i}" required placeholder="Aniq To'g'ri Javob" class="w-full border p-2 rounded text-xs focus:outline-classicDark">
                             <input type="text" id="formQExplanation-${i}" required placeholder="Mantiqiy Izoh / Manba" class="w-full border p-2 rounded text-xs focus:outline-classicDark">
                         </div>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <label class="text-[10px] text-gray-500 font-bold uppercase">Rasm (ixtiyoriy)</label>
+                            <input type="file" accept="image/*" id="formQImage-${i}" onchange="handleImagePick(${i}, this)" class="text-xs">
+                            <img id="formQPreview-${i}" class="hidden h-14 rounded border">
+                            <button type="button" id="formQRemove-${i}" onclick="removeImage(${i})" class="hidden text-xs text-red-600 font-semibold hover:underline">Rasmni olib tashlash</button>
+                        </div>
                     </div>
                 `;
                 container.insertAdjacentHTML('beforeend', markup);
             }
         }
 
+        let formImages = {};
+        let editingSetId = null;
+
+        function compressImage(file, maxDim = 720, maxChars = 70000) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error("Faylni o'qib bo'lmadi."));
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onerror = () => reject(new Error("Bu rasm formatini ochib bo'lmadi."));
+                    img.onload = () => {
+                        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+                        let w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+                        let quality = 0.8, out = '';
+                        const canvas = document.createElement('canvas');
+                        for (let n = 0; n < 12; n++) {
+                            canvas.width = w; canvas.height = h;
+                            const ctx = canvas.getContext('2d');
+                            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+                            ctx.drawImage(img, 0, 0, w, h);
+                            out = canvas.toDataURL('image/jpeg', quality);
+                            if (out.length <= maxChars) break;
+                            if (quality > 0.5) quality -= 0.1;
+                            else { w = Math.round(w * 0.85); h = Math.round(h * 0.85); }
+                        }
+                        resolve(out);
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function showPreview(i) {
+            const img = document.getElementById(`formQPreview-${i}`);
+            const rm = document.getElementById(`formQRemove-${i}`);
+            if (formImages[i]) {
+                img.src = formImages[i];
+                img.classList.remove('hidden');
+                rm.classList.remove('hidden');
+            } else {
+                img.removeAttribute('src');
+                img.classList.add('hidden');
+                rm.classList.add('hidden');
+            }
+        }
+
+        window.handleImagePick = async function(i, input) {
+            const file = input.files[0];
+            if (!file) return;
+            try {
+                formImages[i] = await compressImage(file);
+                showPreview(i);
+            } catch (e) {
+                alert(e.message);
+                input.value = '';
+            }
+        };
+
+        window.removeImage = function(i) {
+            delete formImages[i];
+            document.getElementById(`formQImage-${i}`).value = '';
+            showPreview(i);
+        };
+
+        window.openImage = function(src) {
+            document.getElementById('imgLightboxImg').src = src;
+            document.getElementById('imgLightbox').classList.remove('hidden');
+        };
+
+        function openSetForm(set) {
+            editingSetId = set ? set.id : null;
+            document.getElementById('newSetForm').reset();
+            formImages = {};
+            document.querySelector('#adminModal h3').innerText = set ? "To'plamni tahrirlash" : "Yangi 12 talik Savol To'plami Qo'shish";
+            document.getElementById('formSetName').value = set ? (set.setName ?? '') : '';
+
+            for (let i = 1; i <= 12; i++) {
+                const q = set && Array.isArray(set.questions) ? set.questions[i - 1] : null;
+                if (q) {
+                    const cats = getQuestionSubjects(q).map(c => LEGACY_SUBJECTS[c] || c);
+                    document.getElementById(`formQCategory1-${i}`).value = cats[0] || '';
+                    document.getElementById(`formQCategory2-${i}`).value = cats[1] || '';
+                    document.getElementById(`formQCategory3-${i}`).value = cats[2] || '';
+                    document.getElementById(`formQText-${i}`).value = q.questionText ?? '';
+                    document.getElementById(`formQAnswer-${i}`).value = q.answerText ?? '';
+                    document.getElementById(`formQExplanation-${i}`).value = q.explanationText ?? '';
+                    if (q.imageData) formImages[i] = q.imageData;
+                }
+                showPreview(i);
+            }
+            const modal = document.getElementById('adminModal');
+            modal.classList.remove('hidden');
+            modal.firstElementChild.scrollTop = 0;
+        }
+
         window.triggerAddSet = function() {
             if (!isAdmin) { alert("Faqat admin yangi to'plam qo'sha oladi."); return; }
-            document.getElementById('adminModal').classList.remove('hidden');
+            openSetForm(null);
+        }
+
+        window.editSet = function(setId) {
+            if (!isAdmin) { alert("Faqat admin tahrirlay oladi."); return; }
+            const set = allSetsData.find(s => s.id === setId);
+            if (set) openSetForm(set);
         }
 
         window.closeAdminModal = function() {
             document.getElementById('adminModal').classList.add('hidden');
             document.getElementById('newSetForm').reset();
+            formImages = {};
+            editingSetId = null;
         }
 
         async function saveNewSet() {
@@ -679,27 +800,41 @@
 
             const setName = document.getElementById('formSetName').value;
             const parsedQuestions = [];
+            let totalSize = 0;
             for (let i = 1; i <= 12; i++) {
                 const cat1 = document.getElementById(`formQCategory1-${i}`).value;
                 const cat2 = document.getElementById(`formQCategory2-${i}`).value;
                 const cat3 = document.getElementById(`formQCategory3-${i}`).value;
                 const categories = [...new Set([cat1, cat2, cat3].filter(v => v))];
 
-                parsedQuestions.push({
+                const question = {
                     questionText: document.getElementById(`formQText-${i}`).value,
                     answerText: document.getElementById(`formQAnswer-${i}`).value,
                     explanationText: document.getElementById(`formQExplanation-${i}`).value,
                     categories: categories
-                });
+                };
+                if (formImages[i]) question.imageData = formImages[i];
+                totalSize += JSON.stringify(question).length;
+                parsedQuestions.push(question);
+            }
+
+            if (totalSize > 950000) {
+                alert("Rasmlar jami juda katta. Ba'zi rasmlarni olib tashlang yoki kichikroq rasm tanlang.");
+                return;
             }
 
             try {
-                await addDoc(collection(db, "zakovat_sets"), {
-                    setName: setName,
-                    questions: parsedQuestions,
-                    createdAt: new Date().toISOString()
-                });
-                alert("Muvaffaqiyatli yuklandi!");
+                if (editingSetId) {
+                    await updateDoc(doc(db, "zakovat_sets", editingSetId), { setName: setName, questions: parsedQuestions });
+                    alert("O'zgarishlar saqlandi!");
+                } else {
+                    await addDoc(collection(db, "zakovat_sets"), {
+                        setName: setName,
+                        questions: parsedQuestions,
+                        createdAt: new Date().toISOString()
+                    });
+                    alert("Muvaffaqiyatli yuklandi!");
+                }
                 closeAdminModal();
                 await fetchSetsData();
             } catch (e) {
